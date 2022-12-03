@@ -14,6 +14,8 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
+  main:
+    allow-bean-definition-overriding: true
 
   datasource: #mysql
     url: jdbc:mysql://210.109.63.21:3307/libertyform?autoReconnect=true

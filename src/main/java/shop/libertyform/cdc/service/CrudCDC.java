@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import shop.libertyform.cdc.domain.BaseEntity;
 import shop.libertyform.cdc.domain.status.BaseStatus;
 import shop.libertyform.cdc.repository.CommonRepository;
+import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -14,25 +15,43 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-public abstract class CrudCDC<E extends BaseEntity> {
+public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
     private CommonRepository<E> commonRepository;
+
+    private MCommonRepository<M> mCommonRepository;
 
     protected Map<String, Object> afterMap;
     protected Map<String, Object> beforeMap;
 
     @Autowired
-    public CrudCDC(CommonRepository commonRepository) {
+    public CrudCDC(CommonRepository commonRepository, MCommonRepository mCommonRepository) {
         this.commonRepository = commonRepository;
-
+        this.mCommonRepository = mCommonRepository;
     }
 
     // 생성 및 업데이트 CDC
-    public <T extends BaseEntity> void insertOrCreateEntity(String op, T entity) {
+    public void insertOrCreateEntity(String op, E entity) {
         String className = entity.getClass().getName();
 
         switch (op) {
             case "c": // 생성
                 commonRepository.save(entity);
+                System.out.println(className + " " + entity.getId() + "번 객체가 저장되었습니다.");
+                break;
+            case "u": // 업데이트
+                commonRepository.update(entity);
+                System.out.println(entity.getId() + "번 객체가 업데이트 되었습니다.");
+                break;
+        }
+    }
+
+    // 몽고 DB 생성 및 업데이트
+    public void mongoInsert(String op, M entity) {
+        String className = entity.getClass().getName();
+
+        switch (op) {
+            case "c": // 생성
+                mCommonRepository.save(entity);
                 System.out.println(className + " " + entity.getId() + "번 객체가 저장되었습니다.");
                 break;
             case "u": // 업데이트

@@ -6,8 +6,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 import shop.libertyform.cdc.domain.BaseEntity;
 
-import java.util.Map;
-
 @Component
 public class CommonRepository<E extends BaseEntity> {
 
