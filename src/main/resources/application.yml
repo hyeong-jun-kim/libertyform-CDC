@@ -1,0 +1,32 @@
+spring:
+  data: # mongodb
+    mongodb:
+      host: 210.109.63.21
+      port: 27017
+      authentication-database: admin
+      database: local
+      username: root
+      password: 1q2w3e4r!
+  jpa:
+    hibernate:
+      ddl-auto: update #차후 수정할 것
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+  datasource: #mysql
+    url: jdbc:mysql://210.109.63.21:3307/libertyform?autoReconnect=true
+    username: root
+    password: 1q2w3e4r!
+    driver-class-name: com.mysql.jdbc.Driver
+
+  kafka:
+    consumer:
+      bootstrap-servers: 210.109.63.21:9092
+      group-id: foo
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      bootstrap-servers: 210.109.63.21:9092
