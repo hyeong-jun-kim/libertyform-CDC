@@ -12,10 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 public class Contact extends BaseEntity {
-    // 연락처에 등록된 사람
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    private long memberId;
 
     private String email;
 
@@ -28,9 +25,5 @@ public class Contact extends BaseEntity {
         this.email = email;
         this.name = name;
         this.relationship = relationship;
-    }
-
-    public void changeMember(Member member){
-        this.member = member;
     }
 }

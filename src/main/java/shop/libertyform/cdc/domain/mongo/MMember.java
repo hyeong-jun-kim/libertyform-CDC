@@ -15,7 +15,7 @@ import shop.libertyform.cdc.domain.type.MemberType;
 @AllArgsConstructor
 @Builder
 @Getter
-@Document(collation = "m_member")
+@Document
 public class MMember extends BaseEntity {
     private String email;
 

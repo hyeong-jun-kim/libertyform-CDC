@@ -13,13 +13,9 @@ import shop.libertyform.cdc.domain.type.TextType;
 @Getter
 @Entity
 public class TextResponse extends BaseEntity {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responseId")
-    private Response response;
+    private long responseId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "questionId")
-    private Question question;
+    private long questionId;
 
     @Enumerated(EnumType.STRING)
     private TextType textType;

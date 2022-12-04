@@ -10,15 +10,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class MemberContact extends BaseEntity {
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+    private long memberId;
 
-    @ManyToOne
-    @JoinColumn(name = "contact_id")
-    private Contact contact;
+    private long contactId;
 
-    public void changeMember(Member member){
-        this.member = member;
-    }
 }

@@ -8,7 +8,6 @@ import shop.libertyform.cdc.domain.BaseEntity;
 
 @Component
 public class CommonRepository<E extends BaseEntity> {
-
     E entity;
 
     @PersistenceContext

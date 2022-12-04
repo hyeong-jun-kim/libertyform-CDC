@@ -12,11 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class SurveyParticipant extends BaseEntity {
-    @ManyToOne
-    @JoinColumn(name = "survey_id")
-    private Survey survey;
+    private long surveyId;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+    private long memberId;
 }

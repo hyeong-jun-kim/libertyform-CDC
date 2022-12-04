@@ -13,17 +13,11 @@ import java.time.LocalDate;
 @Getter
 @Entity
 public class SurveyManagement extends BaseEntity {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    private long memberId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contact_id")
-    private Contact contact;
+    private long contactId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "survey_id")
-    private Survey survey;
+    private long surveyId;
 
     private String code;
 

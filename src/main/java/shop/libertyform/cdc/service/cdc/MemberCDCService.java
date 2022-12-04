@@ -38,7 +38,6 @@ public class MemberCDCService extends CrudCDC {
 
         String op = afterMap.get("op").toString();
 
-
         String email = getStringValue("email");
         String password = getStringValue("password");
         MemberType member_type = getMemberTypeValue("member_type");

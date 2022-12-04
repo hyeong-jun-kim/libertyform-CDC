@@ -15,16 +15,9 @@ import java.util.List;
 @Builder
 @Getter
 public class Question extends BaseEntity {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "survey_id")
-    private Survey survey;
+    private long surveyId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id")
-    private QuestionType questionType;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Choice> choices = new ArrayList<>();
+    private long questionTypeId;
 
     private int number;
 

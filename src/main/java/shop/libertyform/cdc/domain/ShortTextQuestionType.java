@@ -12,13 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class ShortTextQuestionType extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id")
-    private Question question;
+    private long questionId;
 
     private int lengthLimit;
 

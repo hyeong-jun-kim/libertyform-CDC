@@ -9,8 +9,10 @@ import shop.libertyform.cdc.domain.status.BaseStatus;
 import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -65,8 +67,14 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
     public void removeEntity(long id, E entity) {
         String className = entity.getClass().getName();
 
+        // MYSQL
         commonRepository.removeById(id, entity);
+
+        // MONGO
+        mCommonRepository.deleteById(id);
+
         System.out.println(className + " " + id + "번 객체가 삭제되었습니다.");
+
     }
 
     public Map<String, Object> getAfterMap(String data) throws JsonProcessingException {
@@ -113,7 +121,7 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
     }
 
     // 상속 엔티티 클래스 정보 저장
-    public<T extends BaseEntity> void setBaseEntity(T baseEntity){
+    public <T extends BaseEntity> void setBaseEntity(T baseEntity){
         long id = Long.parseLong(afterMap.get("id").toString());
         BaseStatus status = getBaseStatusValue("status");
         LocalDateTime createdAt = getLocalDateTimeValue("created_at");
@@ -124,7 +132,7 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
 
     public LocalDateTime parseLocalDateTime(Object localDateTime) {
         long dateTime = Long.parseLong(localDateTime.toString());
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(dateTime), TimeZone.getDefault().toZoneId());
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(dateTime), ZoneId.systemDefault());
     }
 
     public String getStringValue(String key){
@@ -134,6 +142,16 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
             return null;
         }else{
             return value.toString();
+        }
+    }
+
+    public Long getLongValue(String key){
+        Object value = afterMap.get(key);
+
+        if(value == null){
+            return null;
+        }else{
+            return Long.parseLong(value.toString());
         }
     }
 

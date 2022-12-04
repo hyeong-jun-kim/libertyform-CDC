@@ -13,15 +13,10 @@ import shop.libertyform.cdc.domain.type.NumericType;
 @Getter
 @Entity
 public class NumericResponse extends BaseEntity {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responseId")
-    private Response response;
+    private long responseId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
-    private Question question;
+    private long questionId;
 
-    @Enumerated(EnumType.STRING)
     private NumericType numericType;
 
     private int value;

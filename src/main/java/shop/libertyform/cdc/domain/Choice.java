@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class Choice extends BaseEntity {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id")
-    private Question question;
+    private long questionId;
 
     private int number;
 

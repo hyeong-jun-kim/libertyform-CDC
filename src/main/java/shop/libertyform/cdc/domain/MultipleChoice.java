@@ -12,11 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class MultipleChoice extends BaseEntity {
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "multipleChoiceResponseId")
-    private MultipleChoiceResponse multipleChoiceResponse;
+    private long multipleChoiceResponseId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "choiceId")
-    private Choice choice;
+    private long choiceId;
 }
