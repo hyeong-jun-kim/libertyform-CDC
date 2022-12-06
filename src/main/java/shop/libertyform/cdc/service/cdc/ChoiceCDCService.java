@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+import shop.libertyform.cdc.domain.Choice;
 import shop.libertyform.cdc.domain.Survey;
+import shop.libertyform.cdc.domain.mongo.MChoice;
 import shop.libertyform.cdc.domain.mongo.MSurvey;
 import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
@@ -15,13 +17,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 @Service
-public class SurveyCDCService extends CrudCDC {
+public class ChoiceCDCService extends CrudCDC {
 
-    public SurveyCDCService(CommonRepository<Survey> commonRepository, MCommonRepository<MSurvey> mCommonRepository) {
+    public ChoiceCDCService(CommonRepository<Choice> commonRepository, MCommonRepository<MChoice> mCommonRepository) {
         super(commonRepository, mCommonRepository);
     }
 
-    @KafkaListener(topics = "source-db.liberty_form-api.survey", groupId = "foo")
+    @KafkaListener(topics = "source-db.liberty_form-api.choice", groupId = "foo")
     public void consume(@Payload(required = false) String data) throws JsonProcessingException {
         if (data == null) // delete 했을 경우
             return;
@@ -33,50 +35,42 @@ public class SurveyCDCService extends CrudCDC {
             long id = Long.parseLong(beforeMap.get("id").toString());
 
             // CDC 동작 (REMOVE)
-            Survey survey = new Survey();
-            removeEntity(id, survey);
+            Choice choice = new Choice();
+            removeEntity(id, choice);
             return;
         }
 
         String op = afterMap.get("op").toString();
 
-        Long memberId = getLongValue("member_id");
+        Long questionId = getLongValue("question_id");
 
-        String code = getStringValue("code");
-        String description = getStringValue("description");
+        Integer number = getIntegerValue("number");
+
         String name = getStringValue("name");
-        String thumbnailImg = getStringValue("thumbnailImg");
-
-        LocalDate expirationDate = getDateValue("expiration_date");
 
         // MYSQL
-        Survey survey = Survey.builder()
-                .memberId(memberId)
-                .code(code)
-                .description(description)
+        Choice choice = Choice.builder()
+                .questionId(questionId)
                 .name(name)
-                .thumbnailImg(thumbnailImg)
-                .expirationDate(expirationDate)
+                .number(number)
                 .build();
 
-        setBaseEntity(survey);
+
+        setBaseEntity(choice);
 
         // CDC 동작 (INSERT & UPDATE)
-        insertOrCreateEntity(op, survey);
+        insertOrCreateEntity(op, choice);
 
         // MONGO DB
-        MSurvey mSurvey = MSurvey.builder()
-                .memberId(memberId)
-                .code(code)
-                .description(description)
+        MChoice mchoice = MChoice.builder()
+                .questionId(questionId)
                 .name(name)
-                .thumbnailImg(thumbnailImg)
-                .expirationDate(expirationDate)
+                .number(number)
                 .build();
 
-        setBaseEntity(mSurvey);
+        setBaseEntity(mchoice);
 
         // MongoDB CD (INSERT)
-        mongoInsert(op, mSurvey);
+        mongoInsert(op, mchoice);
     }
 }

@@ -9,10 +9,12 @@ import shop.libertyform.cdc.domain.status.BaseStatus;
 import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 
-import java.text.SimpleDateFormat;
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -57,7 +59,7 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
                 System.out.println(className + " " + entity.getId() + "번 객체가 저장되었습니다.");
                 break;
             case "u": // 업데이트
-                commonRepository.update(entity);
+                mCommonRepository.save(entity);
                 System.out.println(entity.getId() + "번 객체가 업데이트 되었습니다.");
                 break;
         }
@@ -130,9 +132,12 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
         baseEntity.setBaseEntity(id, status, createdAt, updatedAt);
     }
 
+    /**
+     * 편의 메서드 parse, getValue...
+     */
     public LocalDateTime parseLocalDateTime(Object localDateTime) {
-        long dateTime = Long.parseLong(localDateTime.toString());
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(dateTime), ZoneId.systemDefault());
+        long dateTime = Long.parseLong(localDateTime.toString()) / 1000;
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(dateTime), TimeZone.getDefault().toZoneId());
     }
 
     public String getStringValue(String key){
@@ -142,6 +147,16 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
             return null;
         }else{
             return value.toString();
+        }
+    }
+
+    public Integer getIntegerValue(String key){
+        Object value = afterMap.get(key);
+
+        if(value == null){
+            return null;
+        }else{
+            return Integer.parseInt(value.toString());
         }
     }
 
@@ -155,6 +170,16 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
         }
     }
 
+    public Boolean getBooleanValue(String key){
+        Object value = afterMap.get(key);
+
+        if(value == null){
+            return null;
+        }else{
+            return Boolean.parseBoolean(value.toString());
+        }
+    }
+
     public BaseStatus getBaseStatusValue(String key){
         Object value = afterMap.get(key);
 
@@ -165,13 +190,24 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
         }
     }
 
+    public LocalDate getDateValue(String key){
+        Object value = afterMap.get(key);
+
+        if(value == null){
+            return null;
+        }else{
+            long date = Long.parseLong(value.toString());
+            return LocalDate.ofEpochDay(date);
+        }
+    }
+
     public LocalDateTime getLocalDateTimeValue(String key){
         Object value = afterMap.get(key);
 
         if(value == null){
             return null;
         }else{
-            return parseLocalDateTime(afterMap.get("updated_at"));
+            return parseLocalDateTime(value.toString());
         }
     }
 }

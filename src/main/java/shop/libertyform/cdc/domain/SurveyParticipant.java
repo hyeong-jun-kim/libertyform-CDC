@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class SurveyParticipant extends BaseEntity {
-    private long surveyId;
+    private Long surveyId;
 
-    private long memberId;
+    private Long memberId;
 }

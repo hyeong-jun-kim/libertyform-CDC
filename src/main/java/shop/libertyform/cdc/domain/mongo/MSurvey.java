@@ -21,7 +21,7 @@ import java.util.List;
 @Document
 @Getter
 public class MSurvey extends BaseEntity {
-    private long memberId;
+    private Long memberId;
 
     private String code;
 

@@ -13,6 +13,10 @@ public class CommonRepository<E extends BaseEntity> {
     @PersistenceContext
     EntityManager em;
 
+    public <E> E findById(Class<E> entity, long id){
+        return em.find(entity, id);
+    }
+
     @Transactional
     public <E> E save(E entity) {
         em.persist(entity);

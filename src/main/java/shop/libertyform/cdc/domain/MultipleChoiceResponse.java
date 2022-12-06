@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class MultipleChoiceResponse extends BaseEntity {
-    private long responseId;
+    private Long responseId;
 
-    private long questionId;
+    private Long questionId;
 
 }

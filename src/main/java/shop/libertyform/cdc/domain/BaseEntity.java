@@ -17,10 +17,10 @@ public abstract class BaseEntity {
     @Id
     private long id;
 
-    @CreatedDate
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)

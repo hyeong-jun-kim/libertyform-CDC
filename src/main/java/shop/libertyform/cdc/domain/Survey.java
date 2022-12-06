@@ -16,7 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 public class Survey extends BaseEntity {
-    private long memberId;
+    private Long memberId;
 
     private String code;
 

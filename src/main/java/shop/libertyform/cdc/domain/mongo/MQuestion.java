@@ -1,20 +1,19 @@
-package shop.libertyform.cdc.domain;
+package shop.libertyform.cdc.domain.mongo;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.data.mongodb.core.mapping.Document;
+import shop.libertyform.cdc.domain.BaseEntity;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Document
 @Builder
 @Getter
-public class Question extends BaseEntity {
+public class MQuestion extends BaseEntity {
     private Long surveyId;
 
     private Long questionTypeId;
@@ -28,4 +27,5 @@ public class Question extends BaseEntity {
     private String questionImgUrl;
 
     private Boolean answerRequired;
+
 }

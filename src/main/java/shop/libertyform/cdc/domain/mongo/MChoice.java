@@ -1,16 +1,19 @@
-package shop.libertyform.cdc.domain;
+package shop.libertyform.cdc.domain.mongo;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+import shop.libertyform.cdc.domain.BaseEntity;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
-@Entity
-public class Choice extends BaseEntity {
+@Document
+public class MChoice extends BaseEntity {
     private Long questionId;
 
     private Integer number;

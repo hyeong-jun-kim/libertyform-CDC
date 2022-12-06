@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 public class Response extends BaseEntity {
-    private long surveyId;
+    private Long surveyId;
 
-    private long memberId;
+    private Long memberId;
 
 }

@@ -4,24 +4,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
-import shop.libertyform.cdc.domain.Survey;
-import shop.libertyform.cdc.domain.mongo.MSurvey;
+import shop.libertyform.cdc.domain.Choice;
+import shop.libertyform.cdc.domain.Contact;
+import shop.libertyform.cdc.domain.mongo.MChoice;
+import shop.libertyform.cdc.domain.mongo.MContact;
 import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 import shop.libertyform.cdc.service.CrudCDC;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-
 @Service
-public class SurveyCDCService extends CrudCDC {
+public class ContactCDCService extends CrudCDC {
 
-    public SurveyCDCService(CommonRepository<Survey> commonRepository, MCommonRepository<MSurvey> mCommonRepository) {
+    public ContactCDCService(CommonRepository<Contact> commonRepository, MCommonRepository<MContact> mCommonRepository) {
         super(commonRepository, mCommonRepository);
     }
 
-    @KafkaListener(topics = "source-db.liberty_form-api.survey", groupId = "foo")
+    @KafkaListener(topics = "source-db.liberty_form-api.contact", groupId = "foo")
     public void consume(@Payload(required = false) String data) throws JsonProcessingException {
         if (data == null) // delete 했을 경우
             return;
@@ -33,50 +31,44 @@ public class SurveyCDCService extends CrudCDC {
             long id = Long.parseLong(beforeMap.get("id").toString());
 
             // CDC 동작 (REMOVE)
-            Survey survey = new Survey();
-            removeEntity(id, survey);
+            Contact contact = new Contact();
+            removeEntity(id, contact);
             return;
         }
 
         String op = afterMap.get("op").toString();
 
+        // 필드 값 가져오기
         Long memberId = getLongValue("member_id");
 
-        String code = getStringValue("code");
-        String description = getStringValue("description");
         String name = getStringValue("name");
-        String thumbnailImg = getStringValue("thumbnailImg");
-
-        LocalDate expirationDate = getDateValue("expiration_date");
+        String email = getStringValue("email");
+        String relationship = getStringValue("relationship");
 
         // MYSQL
-        Survey survey = Survey.builder()
+        Contact contact = Contact.builder()
                 .memberId(memberId)
-                .code(code)
-                .description(description)
+                .email(email)
                 .name(name)
-                .thumbnailImg(thumbnailImg)
-                .expirationDate(expirationDate)
+                .relationship(relationship)
                 .build();
 
-        setBaseEntity(survey);
+        setBaseEntity(contact);
 
         // CDC 동작 (INSERT & UPDATE)
-        insertOrCreateEntity(op, survey);
+        insertOrCreateEntity(op, contact);
 
         // MONGO DB
-        MSurvey mSurvey = MSurvey.builder()
+        MContact mContact = MContact.builder()
                 .memberId(memberId)
-                .code(code)
-                .description(description)
+                .email(email)
                 .name(name)
-                .thumbnailImg(thumbnailImg)
-                .expirationDate(expirationDate)
+                .relationship(relationship)
                 .build();
 
-        setBaseEntity(mSurvey);
+        setBaseEntity(mContact);
 
         // MongoDB CD (INSERT)
-        mongoInsert(op, mSurvey);
+        mongoInsert(op, mContact);
     }
 }

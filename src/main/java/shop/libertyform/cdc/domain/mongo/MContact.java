@@ -1,17 +1,19 @@
-package shop.libertyform.cdc.domain;
+package shop.libertyform.cdc.domain.mongo;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+import shop.libertyform.cdc.domain.BaseEntity;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity
+@Document
 @Getter
-public class Contact extends BaseEntity {
+public class MContact extends BaseEntity {
     private Long memberId;
 
     private String email;
@@ -21,7 +23,7 @@ public class Contact extends BaseEntity {
     private String relationship;
 
     // 편의 메서드
-    public Contact(String email, String name, String relationship){
+    public MContact(String email, String name, String relationship){
         this.email = email;
         this.name = name;
         this.relationship = relationship;

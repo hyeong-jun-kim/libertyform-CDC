@@ -1,10 +1,14 @@
-package shop.libertyform.cdc.domain;
+package shop.libertyform.cdc.domain.mongo;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+import shop.libertyform.cdc.domain.BaseEntity;
 import shop.libertyform.cdc.domain.status.ResponseStatus;
 
 import java.time.LocalDate;
@@ -13,8 +17,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Builder
-@Entity
-public class SurveyManagement extends BaseEntity {
+@Document
+public class MSurveyManagement extends BaseEntity {
     private Long memberId;
 
     private Long contactId;
