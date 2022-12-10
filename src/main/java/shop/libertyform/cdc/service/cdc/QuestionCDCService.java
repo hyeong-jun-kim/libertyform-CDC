@@ -11,16 +11,18 @@ import shop.libertyform.cdc.domain.mongo.MQuestion;
 import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 import shop.libertyform.cdc.service.CrudCDC;
+import shop.libertyform.cdc.service.KafkaProducer;
 
 @Service
 public class QuestionCDCService extends CrudCDC {
 
-    public QuestionCDCService(CommonRepository<Question> commonRepository, MCommonRepository<MQuestion> mCommonRepository) {
-        super(commonRepository, mCommonRepository);
+    public QuestionCDCService(CommonRepository<Question> commonRepository, MCommonRepository<MQuestion> mCommonRepository,
+                              KafkaProducer kafkaProducer) {
+        super(commonRepository, mCommonRepository, kafkaProducer);
     }
 
     @KafkaListener(topics = "source-db.liberty_form-api.question", groupId = "foo")
-    public void consume(@Payload(required = false) String data) throws JsonProcessingException {
+    public void consume(@Payload(required = false) String data) throws JsonProcessingException, IllegalAccessException {
         if (data == null) // delete 했을 경우
             return;
 
@@ -81,5 +83,8 @@ public class QuestionCDCService extends CrudCDC {
 
         // MongoDB CD (INSERT)
         mongoInsert(op, mQuestion);
+
+        // Kafka Topic (Druid)
+        sendTopicMessage("libertyform.question", question);
     }
 }

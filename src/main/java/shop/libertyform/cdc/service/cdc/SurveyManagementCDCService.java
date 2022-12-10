@@ -10,18 +10,20 @@ import shop.libertyform.cdc.domain.status.ResponseStatus;
 import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 import shop.libertyform.cdc.service.CrudCDC;
+import shop.libertyform.cdc.service.KafkaProducer;
 
 import java.time.LocalDate;
 
 @Service
 public class SurveyManagementCDCService extends CrudCDC {
 
-    public SurveyManagementCDCService(CommonRepository<SurveyManagement> commonRepository, MCommonRepository<MSurveyManagement> mCommonRepository) {
-        super(commonRepository, mCommonRepository);
+    public SurveyManagementCDCService(CommonRepository<SurveyManagement> commonRepository, MCommonRepository<MSurveyManagement> mCommonRepository
+    , KafkaProducer kafkaProducer) {
+        super(commonRepository, mCommonRepository, kafkaProducer);
     }
 
     @KafkaListener(topics = "source-db.liberty_form-api.survey_management", groupId = "foo")
-    public void consume(@Payload(required = false) String data) throws JsonProcessingException {
+    public void consume(@Payload(required = false) String data) throws JsonProcessingException, IllegalAccessException {
         if (data == null) // delete 했을 경우
             return;
 
@@ -78,6 +80,9 @@ public class SurveyManagementCDCService extends CrudCDC {
 
         // MongoDB CD (INSERT)
         mongoInsert(op, mSurveyManagement);
+
+        // Kafka Topic (Druid)
+        sendTopicMessage("libertyform.survey_management", surveyManagement);
     }
 
     public ResponseStatus getResponseStatusValue(String key){

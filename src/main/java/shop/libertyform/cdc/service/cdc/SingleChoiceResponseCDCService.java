@@ -11,16 +11,18 @@ import shop.libertyform.cdc.domain.mongo.MSingleChoiceResponse;
 import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 import shop.libertyform.cdc.service.CrudCDC;
+import shop.libertyform.cdc.service.KafkaProducer;
 
 @Service
 public class SingleChoiceResponseCDCService extends CrudCDC {
 
-    public SingleChoiceResponseCDCService(CommonRepository<SingleChoiceResponse> commonRepository, MCommonRepository<MSingleChoiceResponse> mCommonRepository) {
-        super(commonRepository, mCommonRepository);
+    public SingleChoiceResponseCDCService(CommonRepository<SingleChoiceResponse> commonRepository, MCommonRepository<MSingleChoiceResponse> mCommonRepository
+    , KafkaProducer kafkaProducer) {
+        super(commonRepository, mCommonRepository, kafkaProducer);
     }
 
     @KafkaListener(topics = "source-db.liberty_form-api.single_choice_response", groupId = "foo")
-    public void consume(@Payload(required = false) String data) throws JsonProcessingException {
+    public void consume(@Payload(required = false) String data) throws JsonProcessingException, IllegalAccessException {
         if (data == null) // delete 했을 경우
             return;
 
@@ -65,5 +67,8 @@ public class SingleChoiceResponseCDCService extends CrudCDC {
 
         // MongoDB CD (INSERT)
         mongoInsert(op, mSingleChoiceResponse);
+
+        // Kafka Topic (Druid)
+        sendTopicMessage("libertyform.single_choice_response", singleChoiceResponse);
     }
 }

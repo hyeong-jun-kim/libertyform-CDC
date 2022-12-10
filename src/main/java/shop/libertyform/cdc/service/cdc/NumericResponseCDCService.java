@@ -11,16 +11,18 @@ import shop.libertyform.cdc.domain.mongo.MNumericResponse;
 import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 import shop.libertyform.cdc.service.CrudCDC;
+import shop.libertyform.cdc.service.KafkaProducer;
 
 @Service
 public class NumericResponseCDCService extends CrudCDC {
 
-    public NumericResponseCDCService(CommonRepository<NumericResponse> commonRepository, MCommonRepository<MNumericResponse> mCommonRepository) {
-        super(commonRepository, mCommonRepository);
+    public NumericResponseCDCService(CommonRepository<NumericResponse> commonRepository, MCommonRepository<MNumericResponse> mCommonRepository
+    , KafkaProducer kafkaProducer) {
+        super(commonRepository, mCommonRepository, kafkaProducer);
     }
 
     @KafkaListener(topics = "source-db.liberty_form-api.numeric_response", groupId = "foo")
-    public void consume(@Payload(required = false) String data) throws JsonProcessingException {
+    public void consume(@Payload(required = false) String data) throws JsonProcessingException, IllegalAccessException {
         if (data == null) // delete 했을 경우
             return;
 
@@ -62,5 +64,8 @@ public class NumericResponseCDCService extends CrudCDC {
 
         // MongoDB CD (INSERT)
         mongoInsert(op, mNumericResponse);
+
+        // Kafka Topic (Druid)
+        sendTopicMessage("libertyform.numeric_response", numericResponse);
     }
 }

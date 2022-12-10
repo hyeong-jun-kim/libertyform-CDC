@@ -13,16 +13,18 @@ import shop.libertyform.cdc.domain.type.TextType;
 import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 import shop.libertyform.cdc.service.CrudCDC;
+import shop.libertyform.cdc.service.KafkaProducer;
 
 @Service
 public class TextResponseCDCService extends CrudCDC {
 
-    public TextResponseCDCService(CommonRepository<TextResponse> commonRepository, MCommonRepository<MTextResponse> mCommonRepository) {
-        super(commonRepository, mCommonRepository);
+    public TextResponseCDCService(CommonRepository<TextResponse> commonRepository, MCommonRepository<MTextResponse> mCommonRepository
+    ,KafkaProducer kafkaProducer) {
+        super(commonRepository, mCommonRepository, kafkaProducer);
     }
 
     @KafkaListener(topics = "source-db.liberty_form-api.text_response", groupId = "foo")
-    public void consume(@Payload(required = false) String data) throws JsonProcessingException {
+    public void consume(@Payload(required = false) String data) throws JsonProcessingException, IllegalAccessException {
         if (data == null) // delete 했을 경우
             return;
 
@@ -72,6 +74,9 @@ public class TextResponseCDCService extends CrudCDC {
 
         // MongoDB CD (INSERT)
         mongoInsert(op, mTextResponse);
+
+        // Kafka Topic (Druid)
+        sendTopicMessage("libertyform.text_response", textResponse);
     }
 
     public TextType getTextTypeValue(String key){

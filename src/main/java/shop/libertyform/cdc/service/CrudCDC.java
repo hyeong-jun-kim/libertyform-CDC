@@ -9,17 +9,15 @@ import shop.libertyform.cdc.domain.status.BaseStatus;
 import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 
-import java.sql.Timestamp;
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoField;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
+    private KafkaProducer kafkaProducer;
+
     private CommonRepository<E> commonRepository;
 
     private MCommonRepository<M> mCommonRepository;
@@ -28,14 +26,15 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
     protected Map<String, Object> beforeMap;
 
     @Autowired
-    public CrudCDC(CommonRepository commonRepository, MCommonRepository mCommonRepository) {
+    public CrudCDC(CommonRepository commonRepository, MCommonRepository mCommonRepository, KafkaProducer kafkaProducer) {
         this.commonRepository = commonRepository;
         this.mCommonRepository = mCommonRepository;
+        this.kafkaProducer = kafkaProducer;
     }
 
     // 생성 및 업데이트 CDC
     public void insertOrCreateEntity(String op, E entity) {
-        String className = entity.getClass().getName();
+        String className = entity.getClass().getSimpleName();
 
         switch (op) {
             case "c": // 생성
@@ -51,7 +50,7 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
 
     // 몽고 DB 생성 및 업데이트
     public void mongoInsert(String op, M entity) {
-        String className = entity.getClass().getName();
+        String className = entity.getClass().getSimpleName();
 
         switch (op) {
             case "c": // 생성
@@ -67,7 +66,7 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
 
     // 삭제 CDC
     public void removeEntity(long id, E entity) {
-        String className = entity.getClass().getName();
+        String className = entity.getClass().getSimpleName();
 
         // MYSQL
         commonRepository.removeById(id, entity);
@@ -130,6 +129,35 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
         LocalDateTime updatedAt = getLocalDateTimeValue("updated_at");
 
         baseEntity.setBaseEntity(id, status, createdAt, updatedAt);
+    }
+
+    // Druid 연결 용 카프카 토픽 보내기
+    public void sendTopicMessage(String topic, E entity) throws IllegalAccessException {
+        JSONObject jsonObject = new JSONObject();
+
+        // 클래스 필드명 가져와서 JSON으로 넣기
+        for(Field field: entity.getClass().getDeclaredFields()){
+            field.setAccessible(true);
+
+            String key = field.getName();
+            Object value = field.get(entity);
+
+            jsonObject.put(key, value);
+        }
+
+        // BaseEntity JSON
+        BaseEntity baseEntity = getBaseEntity(entity);
+        for(Field field: baseEntity.getClass().getDeclaredFields()){
+            field.setAccessible(true);
+
+            String key = field.getName();
+            Object value = field.get(entity);
+
+            jsonObject.put(key, value);
+        }
+
+        kafkaProducer.sendMessage("libertyform.memeber", jsonObject.toString());
+        System.out.println(jsonObject.toString()); // 테스트 용
     }
 
     /**
@@ -209,5 +237,12 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
         }else{
             return parseLocalDateTime(value.toString());
         }
+    }
+
+    // JSON 변환 용
+    public BaseEntity getBaseEntity(E entity){
+        BaseEntity baseEntity = new BaseEntity();
+        baseEntity.setBaseEntity(entity.getId(), entity.getStatus(), entity.getCreatedAt(), entity.getUpdatedAt());
+        return baseEntity;
     }
 }

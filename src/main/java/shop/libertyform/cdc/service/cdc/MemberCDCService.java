@@ -1,6 +1,8 @@
 package shop.libertyform.cdc.service.cdc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
@@ -11,16 +13,18 @@ import shop.libertyform.cdc.repository.CommonRepository;
 import shop.libertyform.cdc.repository.mongo.MCommonRepository;
 import shop.libertyform.cdc.repository.mongo.MMemberRepository;
 import shop.libertyform.cdc.service.CrudCDC;
+import shop.libertyform.cdc.service.KafkaProducer;
 
 @Service
 public class MemberCDCService extends CrudCDC {
 
-    public MemberCDCService(CommonRepository<Member> commonRepository, MMemberRepository mMemberRepository) {
-        super(commonRepository, mMemberRepository);
+    public MemberCDCService(CommonRepository<Member> commonRepository, MMemberRepository mMemberRepository
+    ,KafkaProducer kafkaProducer) {
+        super(commonRepository, mMemberRepository, kafkaProducer);
     }
 
     @KafkaListener(topics = "source-db.liberty_form-api.member", groupId = "foo")
-    public void consume(@Payload(required = false) String data) throws JsonProcessingException {
+    public void consume(@Payload(required = false) String data) throws JsonProcessingException, IllegalAccessException {
         if (data == null) // delete 했을 경우
             return;
 
@@ -68,6 +72,9 @@ public class MemberCDCService extends CrudCDC {
 
         // MongoDB CD (INSERT)
         mongoInsert(op, mMember);
+
+        // Kafka Topic (Druid)
+        sendTopicMessage("libertyform.member", member);
     }
 
     private MemberType getMemberTypeValue(String key){
