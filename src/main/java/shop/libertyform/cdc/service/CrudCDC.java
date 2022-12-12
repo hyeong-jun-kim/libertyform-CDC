@@ -156,7 +156,7 @@ public abstract class CrudCDC<E extends BaseEntity, M extends BaseEntity> {
             jsonObject.put(key, value);
         }
 
-        kafkaProducer.sendMessage("libertyform.memeber", jsonObject.toString());
+        kafkaProducer.sendMessage(topic, jsonObject.toString());
         System.out.println(jsonObject.toString()); // 테스트 용
     }
 
